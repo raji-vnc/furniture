@@ -1,2 +1,21 @@
 from rest_framework import serializers
-from cart.models import Cart
+from cart.models import Cart,CartItem
+from products.models import Product
+from products.serializers import ProductSerializer
+
+class CartItemSerializer(serializers.ModelSerializer):
+     product_name=serializers.CharField(source='product.name', read_only=True)
+     product_price=serializers.DecimalField(source='product.price', read_only=True, max_digits=10, decimal_places=2)
+     product_image=serializers.ImageField(source='product.image', read_only=True)
+
+     class Meta:
+        model=CartItem
+        fields=['id','product','product_name','product_price','product_image','quantity']
+
+class CartSerializer(serializers.ModelSerializer):
+    items=CartItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model=Cart
+        fields=['id','items','total_price','created_at']
+
