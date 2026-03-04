@@ -1,7 +1,7 @@
 from django.db import models
 
 class Blog(models.Model):
-    image=models.URLField()
+    image=models.ImageField(upload_to='blogs/')
     title=models.CharField(max_length=255)
     author=models.CharField(max_length=255)
     content=models.TextField()
