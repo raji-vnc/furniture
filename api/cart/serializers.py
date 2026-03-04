@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from cart.models import Cart,CartItem
-from products.models import Product
-from products.serializers import ProductSerializer
+
 
 class CartItemSerializer(serializers.ModelSerializer):
      product_name=serializers.CharField(source='product.name', read_only=True)

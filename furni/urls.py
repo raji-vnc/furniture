@@ -10,4 +10,14 @@ urlpatterns = [
     path('api/auth/', include('rest_framework.urls')),
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/products/', include('api.products.urls')),
+    path('api/accounts/', include('api.accounts.urls')),
+    path('api/cart/', include('api.cart.urls')),
+    path('api/orders/', include('api.orders.urls')),
+    path('api/coupons/', include('api.coupons.urls')),
+    path('api/contacts/', include('api.contacts.urls')),
+    path('api/blogs/', include('api.blog.urls')),
+    path('api/testimonials/', include('api.testimonials.urls')),
+    
+
     ]
