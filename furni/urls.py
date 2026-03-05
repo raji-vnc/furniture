@@ -20,6 +20,9 @@ urlpatterns = [
     path('api/contacts/', include('api.contacts.urls')),
     path('api/blogs/', include('api.blog.urls')),
     path('api/testimonials/', include('api.testimonials.urls')),
+
+
+    path('api/cart/', include('api.cart.urls')),
     
 
     ] 
