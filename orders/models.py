@@ -42,7 +42,7 @@ class OrderItem(models.Model):
         verbose_name_plural='Order Items'
 
 class BillingDetails(models.Model):
-    order=models.OneToOneField(Order, on_delete=models.CASCADE)
+    order=models.OneToOneField(Order, on_delete=models.CASCADE,related_name='billing_details')
     country=models.CharField(max_length=255)
     state=models.CharField(max_length=255)
     first_name=models.CharField(max_length=255)
