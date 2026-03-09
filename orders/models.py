@@ -1,3 +1,5 @@
+from tabnanny import verbose
+
 from django.db import models
 from django.contrib.auth.models import User
 from products.models import Product
@@ -60,3 +62,21 @@ class BillingDetails(models.Model):
         db_table='billing_details'
         verbose_name='Billing Detail'
         verbose_name_plural='Billing Details'
+
+
+class Payment(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    order_id=models.CharField(max_length=200)
+    payment_id=models.CharField(max_length=100)
+    amount=models.FloatField()
+    status=models.CharField(max_length=100)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
+    
+    class Meta:
+        db_table='payment'
+        verbose_name='paymnet'
+        verbose_name_plural='payments'
+    
