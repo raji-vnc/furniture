@@ -1,8 +1,5 @@
-from dataclasses import field
-from typing import Required
-
 from rest_framework import serializers
-from orders.models import Order,BillingDetails,OrderItem,Payment
+from orders.models import Order,BillingDetails,OrderItem
 
 
 class BillingDetailsSerializer(serializers.ModelSerializer):
@@ -33,7 +30,3 @@ class OrderSerializer(serializers.ModelSerializer):
             return order
 
 
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=Payment
-        fields='__all__'
