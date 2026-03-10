@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
      "rest_framework",
      'rest_framework_simplejwt',
+     'corsheaders',
 
      'products',
      'accounts',
@@ -54,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     "corsheaders.middleware.CorsMiddleware",
+
 ]
 
 ROOT_URLCONF = 'furni.urls'
@@ -75,7 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'furni.wsgi.application'
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
