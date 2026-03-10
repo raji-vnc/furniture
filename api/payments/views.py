@@ -4,27 +4,71 @@ from orders.models import Payment
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import stripe
+from rest_framework import status
+from django.conf import settings
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class PaymentViewSet(ModelViewSet):
     queryset=Payment.objects.all()
     serializer_class=PaymentSerializer
     permission_classes=[IsAuthenticated]
 
-@api_view(['GET','POST'])
-def payment_create(request):
+@api_view(['GET'])
+def payment_view(request):
     if request.method=='GET':
         payments=Payment.objects.all()
         serializer=PaymentSerializer(payments,many=True)
         return Response(serializer.data)
         
-    if request.method =='POST':
-        serializer=PaymentSerializer(data=request.data)
+@api_view(['POST'])
+def payment_create(request):
+    try:
+        session=stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Furniture Product',
+                        },
+                        'unit_amount': 5000,  
+                    },
+                    'quantity': 1,
+                }
+            ],
+              mode='payment',
+            success_url='http://localhost:8000/payment-success/',
+            cancel_url='http://localhost:8000/payment-cancel/',
+        )        
+        return Response({
+            "checkout_url": session.url
+        })
+    except Exception as e:
+        return Response({"error": str(e)})
+    
+@api_view(['PUT','DELETE'])
+def payment_update_delete(request,pk):
+    try:
+        payment=Payment.objects.get(pk=pk)
+    except Payment.DoesNotExist:
+        return Response({"error":'Payment not found'},status=404)
+
+    if request.method=='PUT':
+        serializer= PaymentSerializer(payment, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
-            return Response({
-            "message":"Payment Successfull",
-            "data":serializer.data
-        })
-        return Response(serializer.data)
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == "DELETE":
+        payment.delete()
+        return Response({"message": "Payment deleted successfully"}, status=204)
+
+  
 
 
