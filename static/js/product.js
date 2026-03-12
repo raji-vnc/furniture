@@ -19,11 +19,18 @@ function renderProducts(data) {
 
 	const products = Array.isArray(data) ? data : (data.results || []);
 
+	function imageUrl(path) {
+		if (!path) return '/static/images/product-1.png';
+		if (path.startsWith('http') || path.startsWith('/')) return path;
+		return `/media/${path}`;
+	}
+
 	products.forEach(product => {
+		const img = imageUrl(product.image || product.image_url || '');
 		const html = `
 		<div class="col-12 col-md-4 col-lg-3 mb-5">
 			<a class="product-item" href="/products/cart/">
-				<img src="${product.image || '/static/images/product-1.png'}" class="img-fluid product-thumbnail">
+				<img src="${img}" class="img-fluid product-thumbnail">
 				<h3 class="product-title">${product.name || ''}</h3>
 				<strong class="product-price">$${product.price || ''}</strong>
 
