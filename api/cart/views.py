@@ -88,3 +88,38 @@ def update_cart(request):
         "quantity":cart_item.quantity
     })
 
+@api_view(['POST'])
+def increase_cart_quantity(request,id):
+    try:
+        cart=CartItem.objects.get(id=id)
+        cart.quantity+=1
+        cart.save()
+        return Response({
+            "message":"Cart quantity increased",
+            "quantity":cart.quantity
+        })
+        
+    except CartItem.DoesNotExist:
+        return Response({"error":"Cart is not found"})
+    
+@api_view(['POST'])
+def decrese_cart_quantity(request,id):
+    try:
+        cart=CartItem.objects.get(id=id)
+        if cart.quantity >1:
+            cart.quantity-=1
+            cart.save()
+        else:
+            cart.delete()
+            return Response({
+                "message":"Product removed"
+            })
+        return Response({
+            "message":"Cart quantity decresed",
+            "quantity":cart.quantity
+        })
+    except CartItem.DoesNotExist:
+        return Response({
+            "error":"cart not found"
+        })
+
