@@ -18,6 +18,7 @@ function renderProducts(data) {
 	container.innerHTML = '';
 
 	const products = Array.isArray(data) ? data : (data.results || []);
+	console.log('renderProducts: found', (products && products.length) || 0, 'products');
 
 	function imageUrl(path) {
 		if (!path) return '/static/images/product-1.png';
@@ -27,6 +28,7 @@ function renderProducts(data) {
 
 	products.forEach(product => {
 		const img = imageUrl(product.image || product.image_url || '');
+		const pid = product.id || product.pk || '';
 		const html = `
 		<div class="col-12 col-md-4 col-lg-3 mb-5">
 			<a class="product-item" href="/products/cart/">
@@ -38,9 +40,38 @@ function renderProducts(data) {
 					<img src="/static/images/cross.svg" class="img-fluid">
 				</span>
 			</a>
+			<div class="mt-2 text-center">
+				<button class="btn btn-sm btn-primary btn-add-cart" data-product-id="${pid}">Add to cart</button>
+			</div>
 		</div>
 		`;
 		container.innerHTML += html;
+	});
+
+	// Delegated handler for Add to cart buttons
+	container.addEventListener('click', (e) => {
+		const btn = e.target.closest('.btn-add-cart');
+		if (!btn) return;
+		const pid = btn.getAttribute('data-product-id');
+		console.log('Add to cart clicked', pid);
+		if (!pid) {
+			console.warn('Product id missing for add-to-cart');
+			return;
+		}
+		if (typeof window.addToCart === 'function') {
+			try { window.addToCart(Number(pid), 1); } catch (err) { console.error('addToCart call failed', err); }
+		} else {
+			// fallback: call API directly, include CSRF if available
+			const csrftoken = (function(){
+				const name='csrftoken'; let cookieValue=null; if(document.cookie&&document.cookie!==''){document.cookie.split(';').forEach(c=>{const t=c.trim(); if(t.startsWith(name+'=')){cookieValue=decodeURIComponent(t.substring(name.length+1));}});} return cookieValue;
+			})();
+			fetch('/api/cart/add/', {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/json', ...(csrftoken?{'X-CSRFToken':csrftoken}:{}) },
+				body: JSON.stringify({ product_id: Number(pid), quantity: 1 })
+			}).then(r => { console.log('fallback addToCart', r.status); return r.text(); }).then(t=>console.log('fallback resp', t)).catch(err => console.error(err));
+		}
 	});
 }
 
