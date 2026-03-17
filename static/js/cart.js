@@ -55,35 +55,28 @@ function renderCartItems(items) {
  
   items.forEach(item => {
     const total = (item.price * item.quantity).toFixed(2);
-    const row = `
-      <tr id="row-${item.id}">
-        <td class="product-thumbnail">
-          <img src="${item.image || '/static/images/product-placeholder.png'}" 
-               alt="${item.product_name}" class="img-fluid" style="width:80px;">
-        </td>
-        <td class="product-name">
-          <h2 class="h5 text-black">${item.product_name}</h2>
-        </td>
-        <td>$${parseFloat(item.price).toFixed(2)}</td>
-        <td>
-          <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-            <div class="input-group-prepend">
-              <button class="btn btn-outline-black decrease" type="button" 
-                      onclick="changeQuantity(${item.id}, -1)">&minus;</button>
-            </div>
-            <input type="text" class="form-control text-center quantity-amount" 
-                   id="qty-${item.id}" value="${item.quantity}" readonly>
-            <div class="input-group-append">
-              <button class="btn btn-outline-black increase" type="button" 
-                      onclick="changeQuantity(${item.id}, 1)">&plus;</button>
-            </div>
-          </div>
-        </td>
-        <td id="total-${item.id}">$${total}</td>
-        <td>
-          <a href="#" class="btn btn-black btn-sm" onclick="removeItem(${item.id})">X</a>
-        </td>
-      </tr>`;
+    const row = `<td class="product-thumbnail">
+                            <img src="images/product-1.png" alt="Image" class="img-fluid">
+                          </td>
+                          <td class="product-name">
+                            <h2 class="h5 text-black">${item.name}</h2>
+                          </td>
+                          <td>$${item.price}</td>
+                          <td>
+                            <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+                              <div class="input-group-prepend">
+                                <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                              </div>
+                              <input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                              <div class="input-group-append">
+                                <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                              </div>
+                            </div>
+        
+                          </td>
+                          <td>$49.00</td>
+                          <td><a href="#" class="btn btn-black btn-sm">X</a></td
+      `;
     tbody.insertAdjacentHTML('beforeend', row);
   });
 }
