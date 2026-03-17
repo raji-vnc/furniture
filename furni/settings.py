@@ -151,3 +151,6 @@ REST_FRAMEWORK = {
 }
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Ensure sessions work for guests
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
