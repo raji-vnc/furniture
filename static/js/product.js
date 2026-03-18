@@ -31,7 +31,7 @@ function renderProducts(data) {
 		const pid = product.id || product.pk || '';
 		const html = `
 		<div class="col-12 col-md-4 col-lg-3 mb-5">
-			<a class="product-item" href="/products/cart/">
+			<a class="product-item" href="#">
 				<img src="${img}" class="img-fluid product-thumbnail">
 				<h3 class="product-title">${product.name || ''}</h3>
 				<strong class="product-price">$${product.price || ''}</strong>
@@ -60,9 +60,12 @@ function renderProducts(data) {
 		}
 		if (typeof window.addToCart === 'function') {
 			try { window.addToCart(Number(pid), 1); } catch (err) { console.error('addToCart call failed', err); }
-		} else {
+		} 
 			// fallback: call API directly, include CSRF if available
-			const csrftoken = (function(){
+			
+	});
+}
+const csrftoken = (function(){
 				const name='csrftoken'; let cookieValue=null; if(document.cookie&&document.cookie!==''){document.cookie.split(';').forEach(c=>{const t=c.trim(); if(t.startsWith(name+'=')){cookieValue=decodeURIComponent(t.substring(name.length+1));}});} return cookieValue;
 			})();
 			fetch('/api/cart/add/', {
@@ -71,10 +74,7 @@ function renderProducts(data) {
 				headers: { 'Content-Type': 'application/json', ...(csrftoken?{'X-CSRFToken':csrftoken}:{}) },
 				body: JSON.stringify({ product_id: Number(pid), quantity: 1 })
 			}).then(r => { console.log('fallback addToCart', r.status); return r.text(); }).then(t=>console.log('fallback resp', t)).catch(err => console.error(err));
-		}
-	});
-}
-
+		
 function renderPagination(data) {
 	const paginateRoot = document.getElementById('pagination');
 	if (!paginateRoot || !data) return;

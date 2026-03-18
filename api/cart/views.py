@@ -17,6 +17,7 @@ from products.models import Product
 # ============================================================
 def get_cart(request):
     if request.user.is_authenticated:
+       cart,_=CartItem.objects.filter(cart=cart)
        return cart
     # Guest: use session key
     if not request.session.session_key:
@@ -36,17 +37,17 @@ class CartItemViewSet(ModelViewSet):
     def get_queryset(self):
         cart = get_cart(self.request)
         return CartItem.objects.filter(cart=cart).select_related('product')
+def partial_update(self, request, *args, **kwargs):
+    instance = self.get_object()
+    qty = int(request.data.get('quantity', instance.quantity))
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        qty = int(request.data.get('quantity', instance.quantity))
-        cart, _ = Cart.objects.get_or_create(user=request.user)
-        if qty < 1:
-            instance.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        instance.quantity = qty
-        instance.save()
-        return Response(self.get_serializer(instance).data)
+    if qty < 1:
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    instance.quantity = qty
+    instance.save()
+    return Response(self.get_serializer(instance).data)
 
 
 # ============================================================

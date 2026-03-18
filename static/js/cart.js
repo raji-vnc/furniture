@@ -1,4 +1,5 @@
-const api='api/cart/';
+const API_BASE='http://127.0.0.1:8000/api/cart/cart/';
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -14,6 +15,9 @@ function getCookie(name) {
 
 const CSRF_TOKEN = getCookie('csrftoken');
 
+document.addEventListener('DOMContentLoaded', () => {
+  loadCart();
+});
 async function loadCart() {
   try {
     const response = await fetch(API_BASE, {
@@ -55,7 +59,9 @@ function renderCartItems(items) {
  
   items.forEach(item => {
     const total = (item.price * item.quantity).toFixed(2);
-    const row = `<td class="product-thumbnail">
+    const row = `
+    <tr>
+    <td class="product-thumbnail">
                             <img src="images/product-1.png" alt="Image" class="img-fluid">
                           </td>
                           <td class="product-name">
@@ -76,11 +82,63 @@ function renderCartItems(items) {
                           </td>
                           <td>$49.00</td>
                           <td><a href="#" class="btn btn-black btn-sm">X</a></td
-      `;
+    
+    </tr>  `
+      ;
     tbody.insertAdjacentHTML('beforeend', row);
   });
 }
  
+//  const API_BASE = 'http://127.0.0.1:8000/api/cart/';
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   loadCart();
+// });
+
+// async function loadCart() {
+//   try {
+//     const response = await fetch(API_BASE, {
+//       credentials: 'include'
+//     });
+
+//     const data = await response.json();
+//     console.log('CART:', data);
+
+//     renderCartItems(data);
+
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
+// function renderCartItems(data) {
+//   const tbody = document.getElementById('cart-items');
+//   tbody.innerHTML = '';
+
+//   const items = data.items || data;
+
+//   if (!items.length) {
+//     tbody.innerHTML = `<tr><td colspan="6">Cart empty</td></tr>`;
+//     return;
+//   }
+
+//   items.forEach(item => {
+//     const total = (item.price * item.quantity).toFixed(2);
+
+//     const row = `
+//     <tr>
+//       <td><img src="/media/${item.image}" width="50"></td>
+//       <td>${item.name}</td>
+//       <td>$${item.price}</td>
+//       <td>${item.quantity}</td>
+//       <td>$${total}</td>
+//       <td><button>X</button></td>
+//     </tr>
+//     `;
+
+//     tbody.insertAdjacentHTML('beforeend', row);
+//   });
+// }
 
 
 
