@@ -65,16 +65,26 @@ function renderProducts(data) {
 			
 	});
 }
-const csrftoken = (function(){
-				const name='csrftoken'; let cookieValue=null; if(document.cookie&&document.cookie!==''){document.cookie.split(';').forEach(c=>{const t=c.trim(); if(t.startsWith(name+'=')){cookieValue=decodeURIComponent(t.substring(name.length+1));}});} return cookieValue;
-			})();
-			fetch('/api/cart/add/', {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: { 'Content-Type': 'application/json', ...(csrftoken?{'X-CSRFToken':csrftoken}:{}) },
-				body: JSON.stringify({ product_id: Number(pid), quantity: 1 })
-			}).then(r => { console.log('fallback addToCart', r.status); return r.text(); }).then(t=>console.log('fallback resp', t)).catch(err => console.error(err));
-		
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function () {
+
+        const pid = this.dataset.productId;  // ✅ define pid here
+
+        fetch('/cart/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+			credentials: 'include',
+
+            body: JSON.stringify({
+                product_id: Number(pid),
+                quantity: 1
+            })
+        });
+
+    });
+});
 function renderPagination(data) {
 	const paginateRoot = document.getElementById('pagination');
 	if (!paginateRoot || !data) return;

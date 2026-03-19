@@ -15,10 +15,11 @@ from products.models import Product
 # ============================================================
 #  Helper — get or create cart (works for guests + logged-in)
 # ============================================================
+# ✅ FIX
 def get_cart(request):
     if request.user.is_authenticated:
-       cart,_=CartItem.objects.filter(cart=cart)
-       return cart
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        return cart
     # Guest: use session key
     if not request.session.session_key:
         request.session.create()
@@ -26,29 +27,27 @@ def get_cart(request):
     cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
     return cart
 
-
 # ============================================================
 #  ViewSet — GET /api/cart-items/
 # ============================================================
+# ✅ FIX — indent it inside the class
 class CartItemViewSet(ModelViewSet):
-    serializer_class   = CartItemSerializer
-    permission_classes = [AllowAny]          # ← no login required
+    serializer_class = CartItemSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         cart = get_cart(self.request)
         return CartItem.objects.filter(cart=cart).select_related('product')
-def partial_update(self, request, *args, **kwargs):
-    instance = self.get_object()
-    qty = int(request.data.get('quantity', instance.quantity))
 
-    if qty < 1:
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    instance.quantity = qty
-    instance.save()
-    return Response(self.get_serializer(instance).data)
-
+    def partial_update(self, request, *args, **kwargs):  # ← indented inside class
+        instance = self.get_object()
+        qty = int(request.data.get('quantity', instance.quantity))
+        if qty < 1:
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        instance.quantity = qty
+        instance.save()
+        return Response(self.get_serializer(instance).data)
 
 # ============================================================
 #  POST /api/cart/add/
@@ -68,9 +67,10 @@ def add_to_cart(request):
     product = get_object_or_404(Product, id=product_id)
     cart    = get_cart(request)
 
-    cart_item, created = CartItem.objects.get_or_create(
-        cart=cart,
+    cart_item, created = CartItem.objects.create(
+        user=request.user,
         product=product,
+        quantity=1,
         defaults={'quantity': quantity}
     )
     if not created:

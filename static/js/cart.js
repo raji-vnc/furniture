@@ -1,4 +1,4 @@
-const API_BASE='http://127.0.0.1:8000/api/cart/cart/';
+const API_BASE='http://127.0.0.1:8000/api/cart/cartitems';
 
 function getCookie(name) {
     let cookieValue = null;
@@ -33,13 +33,14 @@ async function loadCart() {
       alert('Please log in to view your cart.');
       return;
     }
- 
-    const items = await response.json();
-    renderCartItems(items);
-    updateCartTotal(items);
+ const data = await response.json();
+const items = Array.isArray(data) ? data : data.items || data.cart || [];
+
+    renderCartItems(items.cart);
+    updateCartTotal(items.cart);
  
   } catch (error) {
-    console.error('Error loading cart:', error);
+
   }
 }
  
@@ -62,7 +63,7 @@ function renderCartItems(items) {
     const row = `
     <tr>
     <td class="product-thumbnail">
-                            <img src="images/product-1.png" alt="Image" class="img-fluid">
+                            <img src="${item.image}" alt="Image" class="img-fluid">
                           </td>
                           <td class="product-name">
                             <h2 class="h5 text-black">${item.name}</h2>
@@ -80,7 +81,7 @@ function renderCartItems(items) {
                             </div>
         
                           </td>
-                          <td>$49.00</td>
+                          <td>$${total}</td>
                           <td><a href="#" class="btn btn-black btn-sm">X</a></td
     
     </tr>  `
@@ -89,56 +90,3 @@ function renderCartItems(items) {
   });
 }
  
-//  const API_BASE = 'http://127.0.0.1:8000/api/cart/';
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   loadCart();
-// });
-
-// async function loadCart() {
-//   try {
-//     const response = await fetch(API_BASE, {
-//       credentials: 'include'
-//     });
-
-//     const data = await response.json();
-//     console.log('CART:', data);
-
-//     renderCartItems(data);
-
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// function renderCartItems(data) {
-//   const tbody = document.getElementById('cart-items');
-//   tbody.innerHTML = '';
-
-//   const items = data.items || data;
-
-//   if (!items.length) {
-//     tbody.innerHTML = `<tr><td colspan="6">Cart empty</td></tr>`;
-//     return;
-//   }
-
-//   items.forEach(item => {
-//     const total = (item.price * item.quantity).toFixed(2);
-
-//     const row = `
-//     <tr>
-//       <td><img src="/media/${item.image}" width="50"></td>
-//       <td>${item.name}</td>
-//       <td>$${item.price}</td>
-//       <td>${item.quantity}</td>
-//       <td>$${total}</td>
-//       <td><button>X</button></td>
-//     </tr>
-//     `;
-
-//     tbody.insertAdjacentHTML('beforeend', row);
-//   });
-// }
-
-
-
