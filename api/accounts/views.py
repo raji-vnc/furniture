@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
 
 
 
@@ -29,9 +31,16 @@ def login_api(request):
     password = request.data.get('password')
 
     user = authenticate(username=username, password=password)
+    if user is not None:
+        refresh=RefreshToken.for_user(user)
+        return Response({
+            'status':"success",
+            'access':str(refresh.access_token),
+            'refresh':str(refresh)
+        })
+    return Response(
+         {'status': 'error', 'message': 'Invalid credentials'},
+        status=status.HTTP_401_UNAUTHORIZED
+    )
+        
 
-    if user:
-        login(request, user)
-        return Response({'status': 'success'})
-    
-    return Response({'status': 'error'})

@@ -22,7 +22,10 @@
     </form>
 </div>
 
-<script src="{% static 'signin.js' %}"></script>
+<script src="{% static 'js/signin.js' %}"></script>
+<script>
+    const homeUrl = "{% url 'accounts:home' %}";
+</script>
 
 </body>
 </html>

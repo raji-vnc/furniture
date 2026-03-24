@@ -3,7 +3,7 @@ document.getElementById("loginForm").addEventListener("submit",function(e){
      const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    fetch("http://127.0.0.1:8000/api/login/", {
+    fetch("http://127.0.0.1:8000/api/accounts/login/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -14,18 +14,31 @@ document.getElementById("loginForm").addEventListener("submit",function(e){
         })
     })
     
-    .then(data => {
-    if (data.status === "success") {
+ .then(response=>response.json())
+ .then(data => {
+        console.log(data);  // debug
 
-        document.getElementById("message").innerText = "Login Successful ";
+        if (data.status === "success") {
 
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1000);
+            document.getElementById("message").innerText = "Login Successful ";
 
-    } else {
-        document.getElementById("message").innerText = "Invalid credentials ";
-    }
-})
+            // store token if exists
+            if (data.access) {
+                localStorage.setItem("access", data.access);
+            }
+
+            setTimeout(() => {
+                window.location.href = homeUrl;
+            }, 1000);
+
+        } else {
+            document.getElementById("message").innerText = "Invalid credentials ";
+        }
+    })
+
+    .catch(error => {
+        console.error(error);
+    });
+    
 
 })

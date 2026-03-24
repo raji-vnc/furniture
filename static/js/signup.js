@@ -10,7 +10,7 @@ if (password !== confirmPassword) {
     document.getElementById("message").innerText = "Passwords do not match ";
     return;
 }
-   fetch("http://127.0.0.1:8000/api/register/", {
+   fetch("http://127.0.0.1:8000/api/accounts/register/", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
