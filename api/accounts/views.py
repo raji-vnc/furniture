@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer,ProfileSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+from accounts.models import Profile
 
 
 
@@ -15,6 +16,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset=Profile.objects.all()
+    serializer_class=ProfileSerializer
+    permission_classes=[IsAuthenticated]
 
 @api_view(['POST'])
 def register_api(request):

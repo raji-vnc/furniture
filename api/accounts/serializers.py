@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User 
+from accounts.models import Profile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -11,5 +12,12 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password']
-        )  # ✅ hashes password
+        )  
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username=serializers.CharField(source='user.username',read_only=True)
+
+    class Meta:
+        model=Profile
+        fields=['username','profile_image']
