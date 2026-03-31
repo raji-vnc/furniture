@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="{% static 'favicon.png' %}">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="{% static 'css/tiny-slider.css' %}" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <title>Payment | Furni</title>
+</head>
+
+<body>
+  <nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'products:index' %}">Furni<span>.</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsFurni">
+        <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'products:index' %}">Home</a>
+          </li>
+          <li><a class="nav-link" href="{% url 'products:products' %}">Shop</a></li>
+          <li><a class="nav-link" href="{% url 'products:checkout' %}">Checkout</a></li>
+        </ul>
+
+        <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+          <li><a class="nav-link" href="#"><img src="{% static 'images/user.svg' %}"></a></li>
+          <li><a class="nav-link" href="{% url 'cart:cart_view' %}"><img src="{% static 'images/cart.svg' %}"></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col-lg-5">
+          <div class="intro-excerpt">
+            <h1>Payment</h1>
+            <p class="mb-4">Choose a payment method and review your order before finishing checkout.</p>
+          </div>
+        </div>
+        <div class="col-lg-7"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="untree_co-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-7 mb-5">
+          <div class="p-4 p-lg-5 border bg-white rounded-3">
+            <h2 class="h3 mb-4 text-black">Payment Method</h2>
+
+            <div class="border rounded-3 p-3 mb-3">
+              <label class="d-flex align-items-start gap-3 mb-0">
+                <input type="radio" name="payment_method" value="card" checked>
+                <span>
+                  <strong class="d-block">Credit or Debit Card</strong>
+                  <span class="text-muted">Pay securely with your Visa, Mastercard, or RuPay card.</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-12">
+                <label for="card_name" class="text-black">Name on Card</label>
+                <input type="text" class="form-control" id="card_name" placeholder="John Doe">
+              </div>
+              <div class="col-md-12">
+                <label for="card_number" class="text-black">Card Number</label>
+                <input type="text" class="form-control" id="card_number" placeholder="1234 5678 9012 3456">
+              </div>
+              <div class="col-md-6">
+                <label for="expiry_date" class="text-black">Expiry Date</label>
+                <input type="text" class="form-control" id="expiry_date" placeholder="MM/YY">
+              </div>
+              <div class="col-md-6">
+                <label for="cvv" class="text-black">CVV</label>
+                <input type="password" class="form-control" id="cvv" placeholder="123">
+              </div>
+            </div>
+
+            <div class="border rounded-3 p-3 mb-3">
+              <label class="d-flex align-items-start gap-3 mb-0">
+                <input type="radio" name="payment_method" value="cod">
+                <span>
+                  <strong class="d-block">Cash on Delivery</strong>
+                  <span class="text-muted">Pay at the time of delivery for eligible orders.</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="border rounded-3 p-3 mb-4">
+              <label class="d-flex align-items-start gap-3 mb-0">
+                <input type="radio" name="payment_method" value="upi">
+                <span>
+                  <strong class="d-block">UPI</strong>
+                  <span class="text-muted">Use Google Pay, PhonePe, Paytm, or any UPI app.</span>
+                </span>
+              </label>
+            </div>
+
+            <p id="payment-form-message" class="text-danger mb-3"></p>
+
+            <button id="complete-payment-btn" class="btn btn-black btn-lg py-3 btn-block" type="button">
+              Complete Payment
+            </button>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="p-4 p-lg-5 border bg-white rounded-3">
+            <h2 class="h3 mb-4 text-black">Payment Summary</h2>
+            <table class="table site-block-order-table mb-4">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="payment-order-items">
+                <tr>
+                  <td>Your cart is empty.</td>
+                  <td>$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-black">Subtotal</span>
+              <strong id="payment-subtotal">$0.00</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+              <span class="text-black">Total</span>
+              <strong id="payment-total">$0.00</strong>
+            </div>
+
+            <p class="text-muted mb-0">This is a demo payment page setup. After clicking complete payment, you will be taken to the thank-you page.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-section">
+    <div class="container relative">
+      <div class="sofa-img">
+        <img src="{% static 'images/sofa.png' %}" alt="Image" class="img-fluid">
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/tiny-slider.js' %}"></script>
+  <script src="{% static 'js/custom.js' %}"></script>
+  <script src="{% static 'js/payment.js' %}"></script>
+</body>
+</html>

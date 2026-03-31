@@ -11,6 +11,8 @@ def checkout(request):
     return render(request,'checkout.html')
 def payment(request):
     return render(request,'payment_success.html')
+def thankyou(request):
+    return render(request,'thankyou.html')
 
 
 
