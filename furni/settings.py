@@ -21,7 +21,10 @@ SECRET_KEY = 'django-insecure-@t%t_#kkwedv$)v%!j$7ak@08&*3()0_hgvazh#3d#l#$k*z0l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+]
 
 
 # Application definition
@@ -79,6 +82,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'furni.wsgi.application'
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+]
 
 DATABASES = {
     'default': {

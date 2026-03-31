@@ -9,6 +9,7 @@
 
 <div class="container">
     <form id="signupForm" class="form">
+        {% csrf_token %}
         <h2>Sign Up</h2>
 
         <input type="text" id="username" placeholder="Username" required>

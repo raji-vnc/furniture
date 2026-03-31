@@ -23,6 +23,7 @@ def get_cart(request):
     # Guest: use session key
     if not request.session.session_key:
         request.session.create()
+    request.session['cart_session_key'] = request.session.session_key
     session_key = request.session.session_key
     cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
     return cart
@@ -65,13 +66,12 @@ def add_to_cart(request):
         return Response({'error': 'product_id is required.'}, status=400)
 
     product = get_object_or_404(Product, id=product_id)
-    cart    = get_cart(request)
+    cart = get_cart(request)
 
-    cart_item, created = CartItem.objects.create(
-        user=request.user,
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
         product=product,
-        quantity=1,
-        defaults={'quantity': quantity}
+        defaults={'quantity': quantity},
     )
     if not created:
         cart_item.quantity += quantity
