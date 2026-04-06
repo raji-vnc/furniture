@@ -1,5 +1,8 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+from accounts.models import Profile
 
 # Create your views here.
 
@@ -13,3 +16,14 @@ def signin(request):
 
 def home(request):
     return render(request,'index.html')
+
+@login_required(login_url='/accounts/signin/')
+def profile(request):
+    user_profile, _ = Profile.objects.get_or_create(user=request.user)
+    return render(
+        request,
+        'profile.html',
+        {
+            'user_profile': user_profile,
+        },
+    )

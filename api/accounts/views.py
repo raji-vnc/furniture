@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from accounts.models import Profile
+from cart.models import Cart
 
 
 
@@ -45,9 +46,23 @@ def login_api(request):
 
     user = authenticate(username=username, password=password)
     if user is not None:
+        guest_session_key = request.session.session_key
+        guest_cart = None
+        if guest_session_key:
+            guest_cart = Cart.objects.filter(
+                session_key=guest_session_key,
+                user__isnull=True,
+            ).first()
+
+        login(request, user)
+
+        if guest_cart:
+            guest_cart.merge_with_user_cart(user)
+
         refresh=RefreshToken.for_user(user)
         return Response({
             'status':"success",
+            'username': user.username,
             'access':str(refresh.access_token),
             'refresh':str(refresh)
         })

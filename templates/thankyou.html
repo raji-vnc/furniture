@@ -50,7 +50,7 @@
 					</ul>
 
 					<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-						<li><a class="nav-link" href="#"><img src="{% static 'images/user.svg' %}"></a></li>
+						<li><a class="nav-link" href="{% if request.user.is_authenticated %}{% url 'accounts:profile' %}{% else %}{% url 'accounts:signin' %}{% endif %}"><img src="{% static 'images/user.svg' %}"></a></li>
 						<li><a class="nav-link" href="{% url 'cart:cart_view' %}"><img src="{% static 'images/cart.svg' %}"></a></li>
 					</ul>
 				</div>
@@ -205,6 +205,7 @@
 		<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 		<script src="{% static 'js/tiny-slider.js' %}"></script>
 		<script src="{% static 'js/custom.js' %}"></script>
+		<script src="{% static 'js/thankyou.js' %}"></script>
 	</body>
 
 </html>

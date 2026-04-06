@@ -1,6 +1,7 @@
+(() => {
 const API_URL = "/api/products/products/";
 const CART_ADD_URL = "/api/cart/add/";
-const CART_ITEMS_URL = "/api/cart/cartitems/";
+const CART_ITEMS_URL = "/api/cart/cart-items/";
 
 function getCookie(name) {
   let cookieValue = null;
@@ -239,3 +240,4 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshCartBadge();
   load({ page: 1, page_size: 12 });
 });
+})();

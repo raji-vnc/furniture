@@ -1,5 +1,6 @@
-const PAYMENT_CART_ITEMS_URL = "/api/cart/cartitems/";
+const PAYMENT_CART_ITEMS_URL = "/api/cart/cart-items/";
 const PAYMENT_CREATE_URL = "/api/payments/payment-create/";
+const PAYMENT_CONFIRM_URL = "/api/payments/payment-confirm/";
 const THANK_YOU_URL = "/products/thankyou/";
 let currentPaymentTotal = 0;
 
@@ -152,6 +153,7 @@ function bindPaymentButton() {
         credentials: "include",
         body: JSON.stringify({
           amount: currentPaymentTotal,
+          order_id: sessionStorage.getItem("latest_order_id") || "",
         }),
       });
 

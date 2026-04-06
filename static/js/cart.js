@@ -1,5 +1,7 @@
-const CART_ITEMS_URL = "/api/cart/cartitems/";
+(() => {
+const CART_ITEMS_URL = "/api/cart/cart-items/";
 const REMOVE_ITEM_URL = "/api/cart/remove/";
+const FALLBACK_PRODUCT_IMAGE = "/static/images/product-1.png";
 
 function getCookie(name) {
   let cookieValue = null;
@@ -19,6 +21,11 @@ function getCookie(name) {
 const CSRF_TOKEN = getCookie("csrftoken");
 
 document.addEventListener("DOMContentLoaded", () => {
+  const cartTableBody = document.getElementById("cart-items");
+  if (!cartTableBody) {
+    return;
+  }
+
   loadCart();
   bindCartActions();
 });
@@ -66,6 +73,7 @@ function bindCartActions() {
     if (increaseButton) {
       const itemId = increaseButton.dataset.itemId;
       const quantityInput = document.querySelector(`#quantity-${itemId}`);
+      if (!quantityInput) return;
       const nextQuantity = Number(quantityInput.value) + 1;
       await updateQuantity(itemId, nextQuantity);
       return;
@@ -74,6 +82,7 @@ function bindCartActions() {
     if (decreaseButton) {
       const itemId = decreaseButton.dataset.itemId;
       const quantityInput = document.querySelector(`#quantity-${itemId}`);
+      if (!quantityInput) return;
       const nextQuantity = Math.max(1, Number(quantityInput.value) - 1);
       await updateQuantity(itemId, nextQuantity);
       return;
@@ -121,7 +130,7 @@ function renderCartItems(items) {
     const price = Number(item.product_price || 0);
     const quantity = Number(item.quantity || 1);
     const lineTotal = Number(item.line_total || price * quantity);
-    const image = item.image || item.product_image || "";
+    const image = item.image || item.product_image || FALLBACK_PRODUCT_IMAGE;
     const productName = item.product_name || "Product";
 
     const row = `
@@ -140,7 +149,8 @@ function renderCartItems(items) {
             </div>
             <input
               id="quantity-${item.id}"
-              type="text"
+              type="number"
+              min="1"
               class="form-control text-center quantity-amount"
               value="${quantity}"
               data-item-id="${item.id}"
@@ -227,3 +237,4 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 }
+})();

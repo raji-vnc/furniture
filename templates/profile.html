@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="{% static 'favicon.png' %}">
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/tiny-slider.css' %}" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <title>My Profile</title>
+</head>
+<body>
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'products:index' %}">Furni<span>.</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsFurni">
+        <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+          <li><a class="nav-link" href="{% url 'products:index' %}">Home</a></li>
+          <li><a class="nav-link" href="{% url 'products:products' %}">Shop</a></li>
+        </ul>
+        <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+          <li><a class="nav-link" href="{% url 'accounts:profile' %}"><img src="{% static 'images/user.svg' %}"></a></li>
+          <li><a class="nav-link" href="{% url 'cart:cart_view' %}"><img src="{% static 'images/cart.svg' %}"></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col-lg-5">
+          <div class="intro-excerpt">
+            <h1>My Account</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="untree_co-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="p-4 p-lg-5 border bg-white rounded">
+            <div class="text-center mb-4">
+              {% if user_profile.profile_image %}
+                <img src="{{ user_profile.profile_image.url }}" alt="{{ request.user.username }}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;">
+              {% else %}
+                <img src="{% static 'images/user.svg' %}" alt="{{ request.user.username }}" style="width:64px;height:64px;">
+              {% endif %}
+            </div>
+            <h3 class="text-black mb-4 text-center">{{ request.user.username }}</h3>
+            <div class="mb-3">
+              <strong>Username:</strong> {{ request.user.username }}
+            </div>
+            <div class="mb-3">
+              <strong>Email:</strong> {{ request.user.email|default:"Not provided" }}
+            </div>
+            <div class="mb-3">
+              <strong>User ID:</strong> {{ request.user.id }}
+            </div>
+            <div class="mt-4 text-center">
+              <a href="{% url 'products:products' %}" class="btn btn-outline-black me-2">Continue Shopping</a>
+              <a href="{% url 'cart:cart_view' %}" class="btn btn-black">View Cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
