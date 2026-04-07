@@ -9,8 +9,8 @@ urlpatterns = router.urls
 
 
 urlpatterns=[
-    path('payment/',payment_view),
-    path('payment-create/',payment_create),
-    path('payment-confirm/', payment_confirm),
-    path('payment-update-delete/<int:pk>/',payment_update_delete),
+    path('payment/', payment_view, name='payment_view'),
+    path('payment-create/', payment_create, name='payment_create'),
+    path('payment-confirm/', payment_confirm, name='payment_confirm'),
+    path('payment-update-delete/<int:pk>/', payment_update_delete, name='payment_update_delete'),
 ]

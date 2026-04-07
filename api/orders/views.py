@@ -12,9 +12,15 @@ from cart.models import Cart
 from orders.models import BillingDetails, Order, OrderItem
 
 class OrderViewSet(ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(user=self.request.user)
+            .select_related("billing_details")
+            .prefetch_related("items__product")
+        )
 
 def get_user_cart(request):
     return (

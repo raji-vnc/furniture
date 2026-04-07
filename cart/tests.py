@@ -28,6 +28,17 @@ class CartFlowTests(TestCase):
         self.assertEqual(cart_item.quantity, 2)
         self.assertIsNotNone(cart_item.cart.session_key)
 
+    def test_cart_page_uses_database_cart_items_for_logged_in_user(self):
+        user = User.objects.create_user(username="cartuser", password="pass12345")
+        cart = Cart.objects.create(user=user)
+        CartItem.objects.create(cart=cart, product=self.product, quantity=1)
+
+        self.client.force_login(user)
+        response = self.client.get(reverse("cart:cart_view"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context["cart_items"]), [cart.items.get()])
+
 
 class CartAdminTests(TestCase):
     def setUp(self):

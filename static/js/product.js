@@ -2,6 +2,8 @@
 const API_URL = "/api/products/products/";
 const CART_ADD_URL = "/api/cart/add/";
 const CART_ITEMS_URL = "/api/cart/cart-items/";
+const CONTAINER = document.getElementById("container");
+const PAGE_SIZE_OVERRIDE = CONTAINER?.dataset.pageSize ? Number(CONTAINER.dataset.pageSize) : undefined;
 
 function getCookie(name) {
   let cookieValue = null;
@@ -227,7 +229,8 @@ function renderPagination(data) {
 
 async function load(opts = {}) {
   try {
-    const data = await fetchProducts(opts);
+    const effectivePageSize = opts.page_size || PAGE_SIZE_OVERRIDE || 12;
+    const data = await fetchProducts({ ...opts, page_size: effectivePageSize });
     renderProducts(data);
     renderPagination(data);
   } catch (err) {
@@ -238,6 +241,6 @@ async function load(opts = {}) {
 document.addEventListener("DOMContentLoaded", () => {
   ensureCartBadge();
   refreshCartBadge();
-  load({ page: 1, page_size: 12 });
+  load({ page: 1 });
 });
 })();

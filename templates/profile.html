@@ -45,7 +45,7 @@
   <div class="untree_co-section">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-10 col-lg-8">
           <div class="p-4 p-lg-5 border bg-white rounded">
             <div class="text-center mb-4">
               {% if user_profile.profile_image %}
@@ -68,6 +68,54 @@
               <a href="{% url 'products:products' %}" class="btn btn-outline-black me-2">Continue Shopping</a>
               <a href="{% url 'cart:cart_view' %}" class="btn btn-black">View Cart</a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-10 col-lg-8">
+          <div class="p-4 p-lg-5 border bg-white rounded">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="text-black mb-0">My Orders</h3>
+              <span class="text-muted">{{ orders|length }} order{{ orders|length|pluralize }}</span>
+            </div>
+
+            {% if orders %}
+              {% for order in orders %}
+                <div class="border rounded p-3 mb-3">
+                  <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                    <div>
+                      <strong>Order #{{ order.id }}</strong><br>
+                      <span class="text-muted">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+                    </div>
+                    <div class="text-end">
+                      <div><strong>Total:</strong> ${{ order.total_amount }}</div>
+                      <div><strong>Payment:</strong> {{ order.get_payment_method_display }}</div>
+                      <div><strong>Status:</strong> {{ order.get_status_display }}</div>
+                    </div>
+                  </div>
+
+                  {% if order.status != 'PAID' %}
+                    <div class="mb-3">
+                      <a href="{% url 'products:payment' %}?order_id={{ order.id }}" class="btn btn-sm btn-black">Pay Now</a>
+                    </div>
+                  {% endif %}
+
+                  <div>
+                    {% for item in order.items.all %}
+                      <div class="d-flex justify-content-between py-1 border-top">
+                        <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                        <span>${{ item.price }}</span>
+                      </div>
+                    {% empty %}
+                      <div class="text-muted border-top pt-2">No order items found.</div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">You have not placed any orders yet.</p>
+            {% endif %}
           </div>
         </div>
       </div>

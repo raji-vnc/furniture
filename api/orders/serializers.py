@@ -10,9 +10,15 @@ class BillingDetailsSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    line_total = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
         exclude = ["order"]
+
+    def get_line_total(self, obj):
+        return f"{obj.total_price():.2f}"
 
 
 class OrderSerializer(serializers.ModelSerializer):

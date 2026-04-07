@@ -1,8 +1,12 @@
-const PAYMENT_CART_ITEMS_URL = "/api/cart/cart-items/";
 const PAYMENT_CREATE_URL = "/api/payments/payment-create/";
 const PAYMENT_CONFIRM_URL = "/api/payments/payment-confirm/";
 const THANK_YOU_URL = "/products/thankyou/";
 let currentPaymentTotal = 0;
+
+function getLatestOrderId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("order_id") || sessionStorage.getItem("latest_order_id") || "";
+}
 
 function getCookie(name) {
   let cookieValue = null;
@@ -38,6 +42,20 @@ function setPaymentMessage(message) {
   }
 }
 
+function togglePaymentFields() {
+  const selectedMethod = getSelectedPaymentMethod();
+  const cardFields = document.getElementById("card_name")?.closest(".row");
+  const upiFields = document.getElementById("upi-fields");
+
+  if (cardFields) {
+    cardFields.classList.toggle("d-none", selectedMethod !== "card");
+  }
+
+  if (upiFields) {
+    upiFields.classList.toggle("d-none", selectedMethod !== "upi");
+  }
+}
+
 function validatePaymentForm() {
   const selectedMethod = getSelectedPaymentMethod();
 
@@ -64,6 +82,19 @@ function validatePaymentForm() {
     }
   }
 
+  if (selectedMethod === "upi") {
+    const upiId = document.getElementById("upi_id")?.value.trim() || "";
+    const upiApp = document.getElementById("upi_app")?.value || "";
+
+    if (!upiId || !upiApp) {
+      return "Please enter your UPI ID and select a UPI app.";
+    }
+
+    if (!/^[a-zA-Z0-9._-]+@[a-zA-Z]{2,}$/i.test(upiId)) {
+      return "Enter a valid UPI ID like yourname@upi.";
+    }
+  }
+
   return "";
 }
 
@@ -76,18 +107,30 @@ async function loadPaymentSummary() {
     return;
   }
 
+  const orderId = getLatestOrderId();
+  if (!orderId) {
+    orderItemsBody.innerHTML = `
+      <tr>
+        <td>No order found.</td>
+        <td>${formatPaymentCurrency(0)}</td>
+      </tr>
+    `;
+    setPaymentMessage("Place your order first, then complete payment.");
+    return;
+  }
+
   try {
-    const response = await fetch(PAYMENT_CART_ITEMS_URL, {
+    const response = await fetch(`/api/orders/orders/${orderId}/`, {
       credentials: "include",
     });
 
     if (!response.ok) {
-      return;
+      throw new Error("Unable to load your order summary.");
     }
 
-    const data = await response.json();
-    const items = Array.isArray(data) ? data : data.results || data.items || [];
-    const total = items.reduce((sum, item) => sum + Number(item.line_total || 0), 0);
+    const order = await response.json();
+    const items = Array.isArray(order.items) ? order.items : [];
+    const total = Number(order.total_amount || 0);
     currentPaymentTotal = total;
 
     orderItemsBody.innerHTML = items.length
@@ -112,6 +155,7 @@ async function loadPaymentSummary() {
     totalElement.textContent = formatPaymentCurrency(total);
   } catch (error) {
     console.error("Failed to load payment summary", error);
+    setPaymentMessage(error.message || "Unable to load payment summary.");
   }
 }
 
@@ -121,11 +165,18 @@ function bindPaymentButton() {
     return;
   }
 
+  document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      setPaymentMessage("");
+      togglePaymentFields();
+    });
+  });
+
   completePaymentButton.addEventListener("click", async () => {
     setPaymentMessage("");
 
     if (!currentPaymentTotal) {
-      window.location.href = THANK_YOU_URL;
+      setPaymentMessage("Payment amount is missing for this order.");
       return;
     }
 
@@ -136,7 +187,8 @@ function bindPaymentButton() {
     }
 
     if (getSelectedPaymentMethod() !== "card") {
-      window.location.href = THANK_YOU_URL;
+      const selectedMethod = getSelectedPaymentMethod();
+      window.location.href = `${THANK_YOU_URL}?order_id=${encodeURIComponent(getLatestOrderId())}&payment_method=${encodeURIComponent(selectedMethod)}`;
       return;
     }
 
@@ -153,7 +205,7 @@ function bindPaymentButton() {
         credentials: "include",
         body: JSON.stringify({
           amount: currentPaymentTotal,
-          order_id: sessionStorage.getItem("latest_order_id") || "",
+          order_id: getLatestOrderId(),
         }),
       });
 
@@ -168,12 +220,13 @@ function bindPaymentButton() {
       console.error("Payment creation failed", error);
       completePaymentButton.disabled = false;
       completePaymentButton.textContent = "Complete Payment";
-      alert("Payment setup failed. Please try again.");
+      setPaymentMessage(error.message || "Payment setup failed. Please try again.");
     }
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadPaymentSummary();
+  togglePaymentFields();
   bindPaymentButton();
 });

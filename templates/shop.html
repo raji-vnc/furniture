@@ -37,10 +37,10 @@
 							<a class="nav-link" href="{% url 'products:index' %}">Home</a>
 						</li>
 						<li class="active"><a class="nav-link" href="shop.html">Shop</a></li>
-						<li><a class="nav-link" href="about.html">About us</a></li>
-						<li><a class="nav-link" href="services.html">Services</a></li>
-						<li><a class="nav-link" href="blog.html">Blog</a></li>
-						<li><a class="nav-link" href="contact.html">Contact us</a></li>
+						<li><a class="nav-link" href="{% url 'products:about' %}">About us</a></li>
+						<li><a class="nav-link" href="{% url 'products:services' %}">Services</a></li>
+						<li><a class="nav-link" href="{% url 'products:blog' %}">Blog</a></li>
+						<li><a class="nav-link" href="{% url 'products:contact' %}">Contact us</a></li>
 					</ul>
 
 					<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
@@ -207,17 +207,20 @@
 						<div class="subscription-form">
 							<h3 class="d-flex align-items-center"><span class="me-1"><img src="{% static 'images/envelope-outline.svg' %}" alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
 
-							<form action="#" class="row g-3">
+							<form class="row g-3" data-subscription-form>
 								<div class="col-auto">
-									<input type="text" class="form-control" placeholder="Enter your name">
+									<input type="text" class="form-control" name="subscriber_name" placeholder="Enter your name" required>
 								</div>
 								<div class="col-auto">
-									<input type="email" class="form-control" placeholder="Enter your email">
+									<input type="email" class="form-control" name="subscriber_email" placeholder="Enter your email" required>
 								</div>
 								<div class="col-auto">
-									<button class="btn btn-primary">
+									<button class="btn btn-primary" type="submit">
 										<span class="fa fa-paper-plane"></span>
 									</button>
+								</div>
+								<div class="col-12">
+									<p class="mb-0 small" data-subscription-status></p>
 								</div>
 							</form>
 
@@ -305,6 +308,7 @@
 		<script src="{% static 'js/custom.js' %}"></script>
 		<script src="{% static 'js/product.js' %}"></script>
 		<script src="{% static 'js/cart.js' %}"></script>
+		<script src="{% static 'js/subscription.js' %}"></script>
 	</body>
 
 </html>

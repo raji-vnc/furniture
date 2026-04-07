@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from cart.models import Cart, CartItem
+from orders.models import Order, OrderItem
 from products.models import Product
 
 
@@ -35,3 +36,21 @@ class LoginCartMergeTests(TestCase):
         self.assertEqual(user_cart.items.count(), 1)
         self.assertEqual(user_cart.items.first().quantity, 2)
         self.assertFalse(Cart.objects.filter(pk=guest_cart.pk).exists())
+
+    def test_profile_page_shows_users_previous_orders(self):
+        order = Order.objects.create(
+            user=self.user,
+            total_amount=Decimal("399.98"),
+            status="PENDING",
+            payment_method="COD",
+        )
+        OrderItem.objects.create(order=order, product=self.product, quantity=2, price=Decimal("199.99"))
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("accounts:profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f"Order #{order.id}")
+        self.assertContains(response, self.product.name)
+        self.assertContains(response, "Cash on Delivery")
+        self.assertContains(response, f'{reverse("products:payment")}?order_id={order.id}')

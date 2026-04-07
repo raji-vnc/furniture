@@ -113,6 +113,24 @@
               </label>
             </div>
 
+            <div class="row g-3 mb-4 d-none" id="upi-fields">
+              <div class="col-md-12">
+                <label for="upi_id" class="text-black">UPI ID</label>
+                <input type="text" class="form-control" id="upi_id" placeholder="yourname@upi">
+              </div>
+              <div class="col-md-12">
+                <label for="upi_app" class="text-black">UPI App</label>
+                <select class="form-control" id="upi_app">
+                  <option value="">Select app</option>
+                  <option value="gpay">Google Pay</option>
+                  <option value="phonepe">PhonePe</option>
+                  <option value="paytm">Paytm</option>
+                  <option value="bhim">BHIM</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
             <p id="payment-form-message" class="text-danger mb-3"></p>
 
             <button id="complete-payment-btn" class="btn btn-black btn-lg py-3 btn-block" type="button">

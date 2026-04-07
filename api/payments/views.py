@@ -28,6 +28,12 @@ def payment_view(request):
 @permission_classes([IsAuthenticated])
 def payment_create(request):
     try:
+        if not settings.STRIPE_SECRET_KEY:
+            return Response(
+                {"error": "Stripe is not configured. Add STRIPE_SECRET_KEY to continue card payments."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         amount = float(request.data.get('amount', 0))
         order_id = request.data.get('order_id')
         if not order_id:
@@ -36,6 +42,10 @@ def payment_create(request):
         order = Order.objects.filter(id=order_id, user=request.user).first()
         if not order:
             return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if order.payment_method != 'CARD':
+            order.payment_method = 'CARD'
+            order.save(update_fields=['payment_method'])
 
         amount_in_cents = max(int(amount * 100), 100)
         success_url = request.build_absolute_uri(
@@ -65,6 +75,16 @@ def payment_create(request):
                 "user_id": str(request.user.id),
             },
         )
+
+        Payment.objects.update_or_create(
+            order_id=str(order.id),
+            defaults={
+                "user": request.user,
+                "payment_id": session.id,
+                "amount": float(order.total_amount),
+                "status": "INITIATED",
+            },
+        )
         return Response({
             "checkout_url": session.url
         })
@@ -78,6 +98,7 @@ def payment_create(request):
 def payment_confirm(request):
     order_id = request.data.get('order_id')
     session_id = request.data.get('session_id') or ""
+    payment_method = (request.data.get('payment_method') or 'card').lower()
 
     if not order_id:
         return Response({"error": "order_id is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -85,6 +106,35 @@ def payment_confirm(request):
     order = Order.objects.filter(id=order_id, user=request.user).first()
     if not order:
         return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    method_map = {
+        'card': 'CARD',
+        'cod': 'COD',
+        'upi': 'UPI',
+    }
+    normalized_method = method_map.get(payment_method, 'UNKNOWN')
+    if order.payment_method != normalized_method:
+        order.payment_method = normalized_method
+        order.save(update_fields=['payment_method'])
+
+    if payment_method != 'card' or not session_id:
+        Payment.objects.update_or_create(
+            order_id=str(order.id),
+            defaults={
+                "user": request.user,
+                "payment_id": f"{payment_method or 'manual'}-order-{order.id}",
+                "amount": float(order.total_amount),
+                "status": "PENDING" if payment_method == "upi" else "PAY_ON_DELIVERY",
+            },
+        )
+        return Response(
+            {
+                "message": "Payment not captured. Order remains pending.",
+                "order_id": order.id,
+                "status": order.status,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     order.status = 'PAID'
     order.save(update_fields=['status'])

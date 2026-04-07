@@ -19,8 +19,18 @@ async function confirmSuccessfulPayment() {
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("order_id") || sessionStorage.getItem("latest_order_id") || "";
   const sessionId = params.get("session_id") || "";
+  const paymentMethod = params.get("payment_method") || "";
 
   if (!orderId) {
+    return;
+  }
+
+  if (paymentMethod && paymentMethod !== "card") {
+    sessionStorage.removeItem("latest_order_id");
+    return;
+  }
+
+  if (!sessionId) {
     return;
   }
 
