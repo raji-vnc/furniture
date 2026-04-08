@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from blog.models import Blog
 
 def index(request):
     return render(request,'index.html')
@@ -14,7 +15,8 @@ def services(request):
     return render(request, 'services.html')
 
 def blog(request):
-    return render(request, 'blog.html')
+    blogs = Blog.objects.all()
+    return render(request, 'blog.html', {"blogs": blogs})
 
 def contact(request):
     return render(request, 'contact.html')
@@ -30,6 +32,5 @@ def payment(request):
 @login_required(login_url='/accounts/signin/')
 def thankyou(request):
     return render(request,'thankyou.html')
-
 
 
