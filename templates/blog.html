@@ -61,7 +61,7 @@
 							<div class="intro-excerpt">
 								<h1>Blog</h1>
 								<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-								<p><a href="" class="btn btn-secondary me-2">Shop Now</a><a href="#" class="btn btn-white-outline">Explore</a></p>
+								<p><a href="{% url 'products:products' %}#container" class="btn btn-secondary me-2">Shop Now</a><a href="{% url 'products:services' %}" class="btn btn-white-outline">Explore</a></p>
 							</div>
 						</div>
 						<div class="col-lg-7">
@@ -81,34 +81,26 @@
 			<div class="container">
 				<div class="d-flex justify-content-between align-items-center mb-4">
 					<h2 class="section-title mb-0">Latest Posts</h2>
-					<p id="blog-status" class="text-muted small mb-0"></p>
+					<p id="blog-status" class="text-muted small mb-0">Loading…</p>
 				</div>
-				<div class="row blog-list" id="blog-list">
-					{% if blogs %}
-						{% for blog in blogs %}
-						<div class="col-12 col-sm-6 col-md-4 mb-5">
-							<div class="post-entry h-100">
-								{% if blog.image %}
-									<a href="#" class="post-thumbnail d-block"><img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="img-fluid"></a>
-								{% else %}
-									<a href="#" class="post-thumbnail d-block"><img src="{% static 'images/post-1.jpg' %}" alt="{{ blog.title }}" class="img-fluid"></a>
-								{% endif %}
-								<div class="post-content-entry">
-									<h3 class="mb-1"><a href="#">{{ blog.title }}</a></h3>
-									<div class="meta mb-2">
-										<span>by <a href="#">{{ blog.author }}</a></span>
-										<span>on <a href="#">{{ blog.created_at|date:"M d, Y" }}</a></span>
-									</div>
-									<p class="mb-0 text-muted small">{{ blog.content|truncatewords:22 }}</p>
-								</div>
+				<div class="row blog-list" id="blog-list"></div>
+
+				<div id="blog-create-card" class="card shadow-sm border-0 mt-4" style="display:none;">
+					<div class="card-body">
+						<h5 class="card-title mb-3">Publish a blog</h5>
+						<form id="blog-form">
+							<div class="mb-3">
+								<label class="form-label" for="blog-title">Title</label>
+								<input type="text" class="form-control" id="blog-title" required>
 							</div>
-						</div>
-						{% endfor %}
-					{% else %}
-						<div class="col-12">
-							<p class="text-muted mb-0">No blog posts yet. Add one from your account page.</p>
-						</div>
-					{% endif %}
+							<div class="mb-3">
+								<label class="form-label" for="blog-content">Content</label>
+								<textarea class="form-control" id="blog-content" rows="5" required></textarea>
+							</div>
+							<p id="blog-create-status" class="small text-muted mb-3"></p>
+							<button type="submit" class="btn btn-primary-hover-outline">Post Blog</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -121,7 +113,8 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-7 mx-auto text-center">
-						<h2 class="section-title">Testimonials</h2>
+						<h2 class="section-title mb-1">Testimonials</h2>
+						<p id="testimonial-status" class="text-muted small mb-3">Loading…</p>
 					</div>
 				</div>
 
@@ -135,76 +128,7 @@
 							</div>
 
 							<div class="testimonial-slider">
-								
-								<div class="item">
-									<div class="row justify-content-center">
-										<div class="col-lg-8 mx-auto">
-
-											<div class="testimonial-block text-center">
-												<blockquote class="mb-5">
-													<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
-												</blockquote>
-
-												<div class="author-info">
-													<div class="author-pic">
-														<img src="{% static 'images/person-1.png' %}" alt="Maria Jones" class="img-fluid">
-													</div>
-													<h3 class="font-weight-bold">Maria Jones</h3>
-													<span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
-												</div>
-											</div>
-
-										</div>
-									</div>
-								</div> 
-								<!-- END item -->
-
-								<div class="item">
-									<div class="row justify-content-center">
-										<div class="col-lg-8 mx-auto">
-
-											<div class="testimonial-block text-center">
-												<blockquote class="mb-5">
-													<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
-												</blockquote>
-
-												<div class="author-info">
-													<div class="author-pic">
-														<img src="{% static 'images/person-1.png' %}" alt="Maria Jones" class="img-fluid">
-													</div>
-													<h3 class="font-weight-bold">Maria Jones</h3>
-													<span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
-												</div>
-											</div>
-
-										</div>
-									</div>
-								</div> 
-								<!-- END item -->
-
-								<div class="item">
-									<div class="row justify-content-center">
-										<div class="col-lg-8 mx-auto">
-
-											<div class="testimonial-block text-center">
-												<blockquote class="mb-5">
-													<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
-												</blockquote>
-
-												<div class="author-info">
-													<div class="author-pic">
-														<img src="{% static 'images/person-1.png' %}" alt="Maria Jones" class="img-fluid">
-													</div>
-													<h3 class="font-weight-bold">Maria Jones</h3>
-													<span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
-												</div>
-											</div>
-
-										</div>
-									</div>
-								</div> 
-								<!-- END item -->
-
+								<!-- populated by testimonial.js -->
 							</div>
 
 						</div>
@@ -221,13 +145,13 @@
 			<div class="container relative">
 
 				<div class="sofa-img">
-					<img src="images/sofa.png" alt="Image" class="img-fluid">
+					<img src="{% static 'images/sofa.png' %}" alt="Image" class="img-fluid">
 				</div>
 
 				<div class="row">
 					<div class="col-lg-8">
 						<div class="subscription-form">
-							<h3 class="d-flex align-items-center"><span class="me-1"><img src="images/envelope-outline.svg" alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
+							<h3 class="d-flex align-items-center"><span class="me-1"><img src="{% static 'images/envelope-outline.svg' %}" alt="Image" class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
 
 							<form action="#" class="row g-3">
 								<div class="col-auto">
@@ -325,6 +249,7 @@
 		<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 		<script src="{% static 'js/tiny-slider.js' %}"></script>
 		<script src="{% static 'js/custom.js' %}"></script>
+		<script src="{% static 'js/testimonial.js' %}"></script>
 		<script src="{% static 'js/blog-page.js' %}"></script>
 	</body>
 

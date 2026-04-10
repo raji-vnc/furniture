@@ -88,12 +88,14 @@
 		              <div class="p-3 p-lg-5 border bg-white">
 
 		                <label for="c_code" class="text-black mb-3">Enter your coupon code if you have one</label>
-		                <div class="input-group w-75 couponcode-wrap">
+                    <p class="text-muted small mb-2" id="checkout-coupon-status"></p>
+		                <div class="input-group w-75 couponcode-wrap mb-3">
 		                  <input type="text" class="form-control me-2" id="c_code" placeholder="Coupon Code" aria-label="Coupon Code" aria-describedby="button-addon2">
 		                  <div class="input-group-append">
 		                    <button class="btn btn-black btn-sm" type="button" id="button-addon2">Apply</button>
 		                  </div>
 		                </div>
+                    <div class="d-flex flex-wrap gap-2 small text-muted" id="checkout-coupon-available"></div>
 
 		              </div>
 		            </div>
@@ -286,7 +288,7 @@
 		<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 		<script src="{% static 'js/tiny-slider.js' %}"></script>
 		<script src="{% static 'js/custom.js' %}"></script>
-		<script src="{% static 'js/checkout.js' %}"></script>
+		<script src="{% static 'js/checkout.js' %}?v=3"></script>
 		<script src="{% static 'js/subscription.js' %}"></script>
 	</body>
 

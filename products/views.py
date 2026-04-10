@@ -15,8 +15,7 @@ def services(request):
     return render(request, 'services.html')
 
 def blog(request):
-    blogs = Blog.objects.all()
-    return render(request, 'blog.html', {"blogs": blogs})
+    return render(request, 'blog.html')
 
 def contact(request):
     return render(request, 'contact.html')
@@ -32,5 +31,4 @@ def payment(request):
 @login_required(login_url='/accounts/signin/')
 def thankyou(request):
     return render(request,'thankyou.html')
-
 

@@ -1,16 +1,16 @@
-from urllib import response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+
 from .serializers import BlogSerializer
 from blog.models import Blog
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 
 class BlogViewSet(ModelViewSet):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 @api_view(['GET'])
 def blog_list(request):
@@ -32,7 +32,7 @@ def blog_detail(request,pk):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_blog(request):
-    serializer=BlogSerializer(data=request.data)
+    serializer=BlogSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         serializer.save()
         return Response({

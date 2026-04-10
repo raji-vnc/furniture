@@ -161,10 +161,15 @@
               <span class="text-black">Subtotal</span>
               <strong id="payment-subtotal">$0.00</strong>
             </div>
+            <div class="d-flex justify-content-between mb-2" id="payment-discount-row" style="display:none;">
+              <span class="text-success">Coupon</span>
+              <strong class="text-success" id="payment-discount">-$0.00</strong>
+            </div>
             <div class="d-flex justify-content-between mb-4">
               <span class="text-black">Total</span>
               <strong id="payment-total">$0.00</strong>
             </div>
+            <div class="small text-muted mb-3" id="payment-coupon-available"></div>
 
             <p class="text-muted mb-0">This is a demo payment page setup. After clicking complete payment, you will be taken to the thank-you page.</p>
           </div>
@@ -184,6 +189,6 @@
   <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'js/tiny-slider.js' %}"></script>
   <script src="{% static 'js/custom.js' %}"></script>
-  <script src="{% static 'js/payment.js' %}"></script>
+  <script src="{% static 'js/payment.js' %}?v=3"></script>
 </body>
 </html>

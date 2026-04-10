@@ -1,7 +1,10 @@
 const PAYMENT_CREATE_URL = "/api/payments/payment-create/";
 const PAYMENT_CONFIRM_URL = "/api/payments/payment-confirm/";
 const THANK_YOU_URL = "/products/thankyou/";
+const COUPON_AVAILABLE_URL = "/api/coupons/available/";
+const COUPON_STORAGE_KEY = "applied_coupon";
 let currentPaymentTotal = 0;
+let storedCoupon = null;
 
 function getLatestOrderId() {
   const params = new URLSearchParams(window.location.search);
@@ -102,6 +105,9 @@ async function loadPaymentSummary() {
   const orderItemsBody = document.getElementById("payment-order-items");
   const subtotalElement = document.getElementById("payment-subtotal");
   const totalElement = document.getElementById("payment-total");
+  const couponList = document.getElementById("payment-coupon-available");
+  const discountRow = document.getElementById("payment-discount-row");
+  const discountAmountEl = document.getElementById("payment-discount");
 
   if (!orderItemsBody || !subtotalElement || !totalElement) {
     return;
@@ -130,8 +136,7 @@ async function loadPaymentSummary() {
 
     const order = await response.json();
     const items = Array.isArray(order.items) ? order.items : [];
-    const total = Number(order.total_amount || 0);
-    currentPaymentTotal = total;
+    const backendTotal = Number(order.total_amount || 0);
 
     orderItemsBody.innerHTML = items.length
       ? items
@@ -151,8 +156,29 @@ async function loadPaymentSummary() {
           </tr>
         `;
 
-    subtotalElement.textContent = formatPaymentCurrency(total);
-    totalElement.textContent = formatPaymentCurrency(total);
+    // Apply stored coupon client-side for display
+    const subtotal = items.reduce((sum, item) => sum + Number(item.line_total || 0), 0);
+    const discountPct = storedCoupon ? Number(storedCoupon.discount || 0) : 0;
+    const discountAmount = subtotal * (discountPct / 100);
+    const totalDisplay = subtotal - discountAmount;
+
+    subtotalElement.textContent = formatPaymentCurrency(subtotal);
+    totalElement.textContent = formatPaymentCurrency(totalDisplay || backendTotal);
+
+    currentPaymentTotal = totalDisplay || backendTotal;
+
+    if (discountRow && discountAmountEl) {
+      if (discountPct > 0) {
+        discountRow.style.display = "flex";
+        discountAmountEl.textContent = `-${formatPaymentCurrency(discountAmount)}`;
+      } else {
+        discountRow.style.display = "none";
+      }
+    }
+
+    if (couponList) {
+      loadAvailableCoupons(couponList);
+    }
   } catch (error) {
     console.error("Failed to load payment summary", error);
     setPaymentMessage(error.message || "Unable to load payment summary.");
@@ -226,7 +252,77 @@ function bindPaymentButton() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  restoreStoredCoupon();
   loadPaymentSummary();
   togglePaymentFields();
   bindPaymentButton();
 });
+
+async function loadAvailableCoupons(target) {
+  try {
+    const res = await fetch(COUPON_AVAILABLE_URL, { credentials: "include" });
+    if (!res.ok) throw new Error("Unable to load coupons");
+    const coupons = await res.json();
+    if (!coupons.length) {
+      target.textContent = "";
+      return;
+    }
+    target.innerHTML =
+      "Available coupons: " +
+      coupons
+        .map(
+          (c) =>
+            `<button type="button" class="btn btn-outline-dark btn-sm me-2 mb-2" data-coupon-code="${escapeHtml(
+              c.code
+            )}" data-coupon-discount="${Number(c.discount || 0)}">${escapeHtml(c.code)} (${Number(
+              c.discount || 0,
+            )}% off)</button>`
+        )
+        .join("");
+
+    // make badges clickable to apply locally
+    target.addEventListener("click", (event) => {
+      const pill = event.target.closest("[data-coupon-code]");
+      if (!pill) return;
+      setStoredCoupon({
+        code: pill.dataset.couponCode,
+        discount: Number(pill.dataset.couponDiscount || 0),
+      });
+      loadPaymentSummary();
+    });
+  } catch (err) {
+    target.textContent = "";
+    console.error("Failed to load coupons for payment page", err);
+  }
+}
+
+function restoreStoredCoupon() {
+  try {
+    const raw = sessionStorage.getItem(COUPON_STORAGE_KEY);
+    if (!raw) return;
+    const coupon = JSON.parse(raw);
+    if (coupon && coupon.code) {
+      storedCoupon = coupon;
+    }
+  } catch (e) {
+    console.warn("Unable to restore coupon for payment page", e);
+  }
+}
+
+function setStoredCoupon(coupon) {
+  try {
+    storedCoupon = coupon;
+    sessionStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon));
+  } catch (e) {
+    console.warn("Unable to persist coupon for payment page", e);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}

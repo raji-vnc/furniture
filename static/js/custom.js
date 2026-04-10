@@ -1,11 +1,12 @@
 (function() {
 	'use strict';
 
-	var tinyslider = function() {
+	// Initialize sliders when testimonials are in the DOM
+	var initTestimonialSlider = function() {
 		var el = document.querySelectorAll('.testimonial-slider');
 
 		if (el.length > 0) {
-			var slider = tns({
+			tns({
 				container: '.testimonial-slider',
 				items: 1,
 				axis: "horizontal",
@@ -21,7 +22,7 @@
 			});
 		}
 	};
-	tinyslider();
+	window.initTestimonialSlider = initTestimonialSlider;
 
 	
 

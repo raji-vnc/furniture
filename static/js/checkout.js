@@ -1,7 +1,11 @@
 const CHECKOUT_CART_ITEMS_URL = "/api/cart/cart-items/";
 const PLACE_ORDER_URL = "/api/orders/place/";
 const SIGNIN_URL = "/accounts/signin/";
+const COUPON_APPLY_URL = "/api/coupons/apply/";
+const COUPON_AVAILABLE_URL = "/api/coupons/available/";
+const COUPON_STORAGE_KEY = "applied_coupon";
 let currentCheckoutItemsCount = 0;
+let checkoutAppliedCoupon = null;
 
 function getCookie(name) {
   let cookieValue = null;
@@ -44,6 +48,9 @@ async function loadCheckoutOrder() {
     const items = Array.isArray(data) ? data : data.results || data.items || [];
     currentCheckoutItemsCount = items.length;
     const subtotal = items.reduce((sum, item) => sum + Number(item.line_total || 0), 0);
+    const discountPct = checkoutAppliedCoupon ? Number(checkoutAppliedCoupon.discount || 0) : 0;
+    const discountAmount = subtotal * (discountPct / 100);
+    const total = subtotal - discountAmount;
 
     const itemRows = items.length
       ? items
@@ -69,9 +76,17 @@ async function loadCheckoutOrder() {
         <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
         <td class="text-black" id="checkout-subtotal">${formatCurrency(subtotal)}</td>
       </tr>
+      ${
+        discountPct
+          ? `<tr>
+              <td class="text-success font-weight-bold"><strong>Coupon (${discountPct}% off)</strong></td>
+              <td class="text-success">- ${formatCurrency(discountAmount)}</td>
+            </tr>`
+          : ""
+      }
       <tr>
         <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
-        <td class="text-black font-weight-bold"><strong id="checkout-total">${formatCurrency(subtotal)}</strong></td>
+        <td class="text-black font-weight-bold"><strong id="checkout-total">${formatCurrency(total)}</strong></td>
       </tr>
     `;
   } catch (error) {
@@ -99,6 +114,7 @@ function validateOrderPayload(payload) {
 function buildOrderPayload() {
   return {
     order_notes: document.getElementById("c_order_notes")?.value.trim() || "",
+    coupon_code: checkoutAppliedCoupon?.code || null,
   };
 }
 
@@ -178,6 +194,118 @@ function bindPlaceOrderButton() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  restoreStoredCoupon();
   loadCheckoutOrder();
+  loadAvailableCoupons();
+  bindCouponActions();
   bindPlaceOrderButton();
 });
+
+function bindCouponActions() {
+  const input = document.getElementById("c_code");
+  const applyBtn = document.getElementById("button-addon2");
+  const status = document.getElementById("checkout-coupon-status");
+  const available = document.getElementById("checkout-coupon-available");
+
+  const setStatus = (msg, isError = false) => {
+    if (!status) return;
+    status.textContent = msg;
+    status.className = isError ? "text-danger small mb-2" : "text-muted small mb-2";
+  };
+
+  if (applyBtn && input) {
+    applyBtn.addEventListener("click", async () => {
+      const code = input.value.trim();
+      if (!code) {
+        setStatus("Enter a coupon code", true);
+        return;
+      }
+      setStatus("Applying...");
+      applyBtn.disabled = true;
+      try {
+        const resp = await fetch(COUPON_APPLY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken") || "",
+          },
+          credentials: "include",
+          body: JSON.stringify({ code }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || data.message || "Invalid coupon");
+        checkoutAppliedCoupon = data.coupon;
+        setStoredCoupon(data.coupon);
+        setStatus(data.message || "Coupon applied");
+        await loadCheckoutOrder();
+      } catch (err) {
+        console.error("Apply coupon failed", err);
+        setStatus(err.message || "Unable to apply coupon", true);
+      } finally {
+        applyBtn.disabled = false;
+      }
+    });
+  }
+
+  if (available && applyBtn && input) {
+    available.addEventListener("click", (event) => {
+      const pill = event.target.closest("[data-coupon-code]");
+      if (!pill) return;
+      input.value = pill.dataset.couponCode;
+      applyBtn.click();
+    });
+  }
+}
+
+async function loadAvailableCoupons() {
+  const target = document.getElementById("checkout-coupon-available");
+  if (!target) return;
+  try {
+    const res = await fetch(COUPON_AVAILABLE_URL, { credentials: "include" });
+    if (!res.ok) throw new Error("Unable to load coupons");
+    const coupons = await res.json();
+    if (!coupons.length) {
+      target.textContent = "No coupons available right now.";
+      return;
+    }
+    target.innerHTML = coupons
+      .map(
+        (c) =>
+          `<button type="button" class="btn btn-outline-dark btn-sm me-2 mb-2" data-coupon-code="${c.code}">${c.code} (${Number(
+            c.discount || 0,
+          )}% off)</button>`
+      )
+      .join("");
+  } catch (err) {
+    target.textContent = "Coupons unavailable at the moment.";
+    console.error("Failed to load available coupons", err);
+  }
+}
+
+function setStoredCoupon(coupon) {
+  try {
+    sessionStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon));
+  } catch (e) {
+    console.warn("Unable to persist coupon", e);
+  }
+}
+
+function restoreStoredCoupon() {
+  try {
+    const raw = sessionStorage.getItem(COUPON_STORAGE_KEY);
+    if (!raw) return;
+    const coupon = JSON.parse(raw);
+    if (coupon && coupon.code) {
+      checkoutAppliedCoupon = coupon;
+      const input = document.getElementById("c_code");
+      const status = document.getElementById("checkout-coupon-status");
+      if (input) input.value = coupon.code;
+      if (status) {
+        status.textContent = `Coupon ${coupon.code} applied (${Number(coupon.discount || 0)}% off)`;
+        status.className = "text-muted small mb-2";
+      }
+    }
+  } catch (e) {
+    console.warn("Unable to restore coupon", e);
+  }
+}
