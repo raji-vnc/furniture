@@ -5,6 +5,18 @@ const COUPON_APPLY_URL = "/api/coupons/apply/";
 const COUPON_AVAILABLE_URL = "/api/coupons/available/";
 const FALLBACK_PRODUCT_IMAGE = "/static/images/product-1.png";
 const COUPON_STORAGE_KEY = "applied_coupon";
+const todayMidnight = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+function isCouponExpired(coupon) {
+  if (!coupon || !coupon.expiry_date) return false;
+  const expiry = new Date(coupon.expiry_date);
+  expiry.setHours(0, 0, 0, 0);
+  return expiry < todayMidnight();
+}
 
 function getCookie(name) {
   let cookieValue = null;
@@ -302,16 +314,27 @@ function restoreStoredCoupon() {
     const raw = sessionStorage.getItem(COUPON_STORAGE_KEY);
     if (!raw) return;
     const coupon = JSON.parse(raw);
-    if (coupon && coupon.code) {
-      window.appliedCoupon = coupon;
-      const status = document.getElementById("coupon-status");
+    const status = document.getElementById("coupon-status");
+    const input = document.getElementById("coupon");
+
+    if (!coupon || !coupon.code) return;
+
+    if (isCouponExpired(coupon)) {
+      sessionStorage.removeItem(COUPON_STORAGE_KEY);
       if (status) {
-        status.textContent = `Coupon ${coupon.code} applied (${Number(coupon.discount || 0)}% off)`;
-        status.className = "text-muted mb-2";
+        status.textContent = "Saved coupon expired. Please try another code.";
+        status.className = "text-danger mb-2";
       }
-      const input = document.getElementById("coupon");
-      if (input) input.value = coupon.code;
+      if (input) input.value = "";
+      return;
     }
+
+    window.appliedCoupon = coupon;
+    if (status) {
+      status.textContent = `Coupon ${coupon.code} applied (${Number(coupon.discount || 0)}% off)`;
+      status.className = "text-muted mb-2";
+    }
+    if (input) input.value = coupon.code;
   } catch (e) {
     console.warn("Unable to restore coupon", e);
   }

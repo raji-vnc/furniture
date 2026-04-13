@@ -11,9 +11,10 @@ def get_current_cart(request):
     if request.user.is_authenticated:
         return Cart.objects.filter(user=request.user).first()
 
+    # Ensure a session exists for guest carts (aligns with API get_cart helper)
+    if not request.session.session_key:
+        request.session.create()
     session_key = request.session.session_key
-    if not session_key:
-        return None
 
     return Cart.objects.filter(session_key=session_key, user__isnull=True).first()
 

@@ -24,6 +24,19 @@ function getCartLink() {
   return document.querySelector('a[href*="/cart/cart/"], a[href*="/cart/"]');
 }
 
+function ensureCartLinkWorks() {
+  const cartLink = getCartLink();
+  if (!cartLink || cartLink.dataset.cartHandlerAttached === "true") return;
+  cartLink.addEventListener("click", (event) => {
+    // Force navigation even if another layer would have captured the click.
+    if (cartLink.href) {
+      event.stopPropagation();
+      window.location.href = cartLink.href;
+    }
+  });
+  cartLink.dataset.cartHandlerAttached = "true";
+}
+
 function ensureCartBadge() {
   const cartLink = getCartLink();
   if (!cartLink) return null;
@@ -50,6 +63,7 @@ function ensureCartBadge() {
     lineHeight: "18px",
     textAlign: "center",
     display: "none",
+    pointerEvents: "none", // keep cart icon clickable
   });
   cartLink.appendChild(badge);
   return badge;
@@ -74,7 +88,7 @@ function showCartNotification(message) {
       position: "fixed",
       top: "24px",
       right: "24px",
-      zIndex: "2000",
+      zIndex: "900", // below navbar
       padding: "12px 16px",
       borderRadius: "12px",
       background: "#24313d",
@@ -84,6 +98,7 @@ function showCartNotification(message) {
       opacity: "0",
       transform: "translateY(-10px)",
       transition: "opacity 180ms ease, transform 180ms ease",
+      pointerEvents: "none", // allow clicks to pass through to nav icons (cart)
     });
     document.body.appendChild(toast);
   }
@@ -91,6 +106,7 @@ function showCartNotification(message) {
   toast.textContent = message;
   toast.style.opacity = "1";
   toast.style.transform = "translateY(0)";
+  toast.style.pointerEvents = "none";
 
   window.clearTimeout(window.cartToastTimer);
   window.cartToastTimer = window.setTimeout(() => {
@@ -239,6 +255,7 @@ async function load(opts = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  ensureCartLinkWorks();
   ensureCartBadge();
   refreshCartBadge();
   load({ page: 1 });

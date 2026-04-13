@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 	{% load static %}
-    <base href="{% static '' %}">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="author" content="Untree.co">
@@ -36,7 +35,7 @@
 						<li class="nav-item ">
 							<a class="nav-link" href="{% url 'products:index' %}">Home</a>
 						</li>
-						<li class="active"><a class="nav-link" href="shop.html">Shop</a></li>
+						<li class="active"><a class="nav-link" href="{% url 'products:products' %}">Shop</a></li>
 						<li><a class="nav-link" href="{% url 'products:about' %}">About us</a></li>
 						<li><a class="nav-link" href="{% url 'products:services' %}">Services</a></li>
 						<li><a class="nav-link" href="{% url 'products:blog' %}">Blog</a></li>

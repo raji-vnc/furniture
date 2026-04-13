@@ -5,6 +5,18 @@ const COUPON_AVAILABLE_URL = "/api/coupons/available/";
 const COUPON_STORAGE_KEY = "applied_coupon";
 let currentPaymentTotal = 0;
 let storedCoupon = null;
+const todayMidnight = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+function isCouponExpired(coupon) {
+  if (!coupon || !coupon.expiry_date) return false;
+  const expiry = new Date(coupon.expiry_date);
+  expiry.setHours(0, 0, 0, 0);
+  return expiry < todayMidnight();
+}
 
 function getLatestOrderId() {
   const params = new URLSearchParams(window.location.search);
@@ -301,9 +313,15 @@ function restoreStoredCoupon() {
     const raw = sessionStorage.getItem(COUPON_STORAGE_KEY);
     if (!raw) return;
     const coupon = JSON.parse(raw);
-    if (coupon && coupon.code) {
-      storedCoupon = coupon;
+    if (!coupon || !coupon.code) return;
+
+    if (isCouponExpired(coupon)) {
+      sessionStorage.removeItem(COUPON_STORAGE_KEY);
+      storedCoupon = null;
+      return;
     }
+
+    storedCoupon = coupon;
   } catch (e) {
     console.warn("Unable to restore coupon for payment page", e);
   }

@@ -33,7 +33,18 @@ a {
 .custom-navbar {
   background: #3b5d50 !important;
   padding-top: 20px;
-  padding-bottom: 20px; }
+  padding-bottom: 20px;
+  position: relative;
+  z-index: 3000; }
+  .custom-navbar .custom-navbar-cta a {
+    cursor: pointer;
+    position: relative;
+    z-index: 3100;
+    pointer-events: auto !important;
+  }
+  .custom-navbar .custom-navbar-cta a img {
+    pointer-events: auto !important;
+  }
   .custom-navbar .navbar-brand {
     font-size: 32px;
     font-weight: 600; }
