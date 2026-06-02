@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "furni/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "furni/wsgi.py"
+    }
+  ]
+}
