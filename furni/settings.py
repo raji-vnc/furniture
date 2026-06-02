@@ -1,5 +1,4 @@
 
-import dj_database_url
 import os
 from datetime import timedelta
 from pathlib import Path
