@@ -15,6 +15,7 @@ class ContactViewSet(ModelViewSet):
     # Disable session auth so CSRF isn't required for the public POST.
     authentication_classes = []
 
+    
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
