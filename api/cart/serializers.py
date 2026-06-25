@@ -43,7 +43,7 @@ class CartSerializer(serializers.ModelSerializer):
     grand_total = serializers.SerializerMethodField()
 
     def get_grand_total(self, obj):
-        return sum(item.total_price() for item in obj.items.select_related("product").all())
+        return sum(item.total_price() for item in obj.items.all())
 
     class Meta:
         model = Cart
